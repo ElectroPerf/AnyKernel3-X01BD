@@ -4,17 +4,17 @@
 ## AnyKernel setup
 # begin properties
 properties() { '
-kernel.string=Etherious Kernel by SonalSingh18
+kernel.string=Thunder+ Kernel by Rk585 & prigup
 do.devicecheck=1
 do.modules=0
 do.systemless=1
 do.cleanup=1
 do.cleanuponabort=0
-device.name1=miatoll
-device.name2=curtana
-device.name3=excalibur
-device.name4=gram
-device.name5=joyeuse
+device.name1=X01BD
+device.name2=X01BDA
+device.name3=ASUS_X01BD
+device.name4=ASUS_X01BDA
+device.name5=
 supported.versions=10.0-11.0
 supported.patchlevels=
 '; } # end properties
@@ -29,6 +29,11 @@ ramdisk_compression=auto;
 # import patching functions/variables - see for reference
 . tools/ak3-core.sh;
 
+# Mount partitions as rw
+mount /system;
+mount /vendor;
+mount -o remount,rw /system;
+mount -o remount,rw /vendor;
 
 ## AnyKernel file attributes
 # set permissions/ownership for included ramdisk files
