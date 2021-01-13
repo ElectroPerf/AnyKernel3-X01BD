@@ -4,7 +4,7 @@
 ## AnyKernel setup
 # begin properties
 properties() { '
-kernel.string=Thunder+ Kernel by Rk585 & prigup
+kernel.string=Etherious HMP OC Kernel by SonalSingh18 & Curious_To_Learn
 do.devicecheck=1
 do.modules=0
 do.systemless=1
