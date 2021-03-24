@@ -263,14 +263,14 @@ do_devicecheck() {
   for testname in $(file_getprop anykernel.sh 'device.name.*'); do
     for devicename in $device $product $vendordevice $vendorproduct; do
       if [ "$devicename" == "$testname" ]; then
-        ui_print "$testname" " ";
+        ui_print "- OK ! ";
         match=1;
         break 2;
       fi;
     done;
   done;
   if [ ! "$match" ]; then
-    abort " " "Unsupported device. Aborting...";
+    abort "! Unsupported device , This Device is $devicename . Aborting... !";
   fi;
 }
 int2ver() {
@@ -285,7 +285,7 @@ int2ver() {
 do_versioncheck() {
   [ "$(file_getprop anykernel.sh supported.versions)" ] || return 1;
   local android_ver hi_ver lo_ver parsed_ver supported supported_ver;
-  ui_print "Checking Android version...";
+  ui_print "- Checking Android Version...";
   supported_ver=$(file_getprop anykernel.sh supported.versions | $BB tr -d '[:space:]');
   android_ver=$(file_getprop /system/build.prop ro.build.version.release);
   parsed_ver=$(int2ver $android_ver);
@@ -303,10 +303,11 @@ do_versioncheck() {
       fi;
     done;
   fi;
+  ui_print "- Android Version: $android_ver ";
   if [ "$supported" ]; then
-    ui_print "$android_ver" " ";
+	ui_print "- OK !";
   else
-    abort " " "Unsupported Android version. Aborting...";
+    abort "! Unsupported Android version, This Kernel is only for Android $supported_ver . Aborting... !";
   fi;
 }
 do_levelcheck() {
@@ -327,9 +328,9 @@ do_levelcheck() {
     hi_lvl=9999-99;
   fi;
   if echo -e "$hi_lvl\n$lo_lvl\n$parsed_lvl" | $BB sort -g | $BB grep -n "$parsed_lvl" | $BB grep -q '^2:'; then
-    ui_print "$android_lvl" " ";
+    ui_print ">> $android_lvl <<";
   else
-    abort " " "Unsupported Android security patch level. Aborting...";
+    abort "! Unsupported Android security patch level. Aborting... !";
   fi;
 }
 dump_moduleinfo() {
@@ -427,16 +428,19 @@ AddSpectrum(){
 
   # add spectrum support
   if [ -e $AKHOME/init.spectrum.rc ];then
+  ui_print "- Backing up Old Script in Progress...";
     if [ ! -e /vendor/etc/init/hw/init.qcom.rc.backup ];then
       cp -af /vendor/etc/init/hw/init.qcom.rc /vendor/etc/init/hw/init.qcom.rc.backup
     fi
     if [ ! -e /vendor/etc/init/hw/init.spectrum.rc.backup ];then
       cp -af /vendor/etc/init/hw/init.spectrum.rc /vendor/etc/init/hw/init.spectrum.rc.backup
     fi
+	ui_print "- Patching init.qcom.rc...";
     grep "import /init.spectrum.rc" /vendor/etc/init/hw/init.qcom.rc >/dev/null | sed -i '/import \/init.spectrum.rc/d' /vendor/etc/init/hw/init.qcom.rc
     grep "import init.spectrum.rc" /vendor/etc/init/hw/init.qcom.rc >/dev/null | sed -i '/import init.spectrum.rc/d' /vendor/etc/init/hw/init.qcom.rc
     grep "import /vendor/etc/init/hw/init.spectrum.rc" /vendor/etc/init/hw/init.qcom.rc >/dev/null || sed -i '1,/.*import.*/s/.*import.*/import \/vendor\/etc\/init\/hw\/init.spectrum.rc\n&/' /vendor/etc/init/hw/init.qcom.rc
-    cp -af $AKHOME/init.spectrum.rc /vendor/etc/init/hw/
+    ui_print "- Patching Spectrum Script...";
+	cp -af $AKHOME/init.spectrum.rc /vendor/etc/init/hw/
     chmod -R 644 /vendor/etc/init/hw/init.spectrum.rc
     # cprofile remover
     if [ -e /system/xbin/cprofile ];then
@@ -462,6 +466,7 @@ AddSpectrum(){
   else
     if [ -e /vendor/etc/init/hw/init.spectrum.rc ];then
       rm -rf /vendor/etc/init/hw/init.spectrum.rc
+	  ui_print "- Removing old Spectrum Script..."
     fi
     if [ -e /vendor/etc/init/hw/init.qcom.rc.backup ];then
       cp -af /vendor/etc/init/hw/init.qcom.rc.backup /vendor/etc/init/hw/init.qcom.rc
@@ -503,25 +508,38 @@ fi;
 
 if [ -f banner ]; then
   ui_printfile banner;
-  ui_print " " " ";
+  ui_print " ";
 fi;
 
 KERNEL_STRING="$(file_getprop anykernel.sh kernel.string)";
-ui_print "$KERNEL_STRING";
+KERNEL_FOR="$(file_getprop anykernel.sh kernel.for)";
+KERNEL_COMPILER="$(file_getprop anykernel.sh kernel.compiler)";
+KERNEL_MADE="$(file_getprop anykernel.sh kernel.made)";
+KERNEL_VERSION="$(file_getprop anykernel.sh kernel.version)";
+BUILD_DATE="$(file_getprop anykernel.sh build.date)";
+MESSAGE_WORD="$(file_getprop anykernel.sh message.word)";
+DEVICE_NAME="$(file_getprop anykernel.sh device.name3)";
+ui_print "-- Kernel Name    : $KERNEL_STRING";
+ui_print "-- Kernel Version : $KERNEL_VERSION";
+ui_print "-- Variant        : $KERNEL_FOR";
+ui_print "-- Compiler       : $KERNEL_COMPILER";
+ui_print "-- Device         : $DEVICE_NAME";
+ui_print "-- Build Date     : $BUILD_DATE";
+ui_print "-- Build by       : $KERNEL_MADE";
+ui_print "_________________________________________________" " ";
 if [ -f version ]; then
   ui_print " ";
   ui_printfile version;
   ui_print " ";
 fi;
-ui_print " " "AnyKernel3 by osm0sis @ xda-developers" " " " ";
-
+ui_print "- Preparing Environment Setup ...";
 setup_env;
 
 do_devicecheck;
 do_versioncheck;
 do_levelcheck;
 
-ui_print "Installing...";
+ui_print "Flashing ElectroPerf Kernel...";
 CORE=$($BB grep -oE 'ak.*core.sh' anykernel.sh);
 [ -f tools/$CORE ] || $BB ln -s $AKHOME/tools/ak*-core.sh $AKHOME/tools/$CORE;
 PATH="$AKHOME/bin:$PATH" home=$AKHOME $BB ash anykernel.sh $2;
@@ -540,4 +558,6 @@ if [ "$(file_getprop anykernel.sh do.cleanup)" == 1 ]; then
   cleanup;
 fi;
 
-ui_print " " " " "Done!";
+ui_print "- Done";
+ui_print " " "_________________________________________________";
+ui_print " " "$MESSAGE_WORD" "_________________________________________________" " ";

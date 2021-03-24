@@ -4,7 +4,13 @@
 ## AnyKernel setup
 # begin properties
 properties() { '
-kernel.string=ElectroPerf Kernel By Kunmun
+kernel.string=ExampleKernel by osm0sis @ xda-developers
+kernel.for=KernelForDriver
+kernel.compiler=SDPG
+kernel.made=Kunmun @ElectroPerf
+kernel.version=4.4.xxx
+message.word=ooflol
+build.date=2077
 do.devicecheck=1
 do.modules=0
 do.systemless=1
@@ -12,9 +18,9 @@ do.cleanup=1
 do.cleanuponabort=0
 device.name1=X01BD
 device.name2=X01BDA
-device.name3=ASUS_X01BD
-device.name4=ASUS_X01BDA
-device.name5=
+device.name3=Zenfone Max Pro M2 (X01BD)
+device.name4=ASUS_X01BD
+device.name5=ASUS_X01BDA
 supported.versions=11.0
 supported.patchlevels=
 '; } # end properties
