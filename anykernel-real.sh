@@ -21,7 +21,7 @@ device.name2=X01BDA
 device.name3=Zenfone Max Pro M2 (X01BD)
 device.name4=ASUS_X01BD
 device.name5=ASUS_X01BDA
-supported.versions=11.0
+supported.versions=10.0-11.0
 supported.patchlevels=
 '; } # end properties
 
